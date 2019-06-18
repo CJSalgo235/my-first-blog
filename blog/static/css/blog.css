@@ -25,8 +25,20 @@ h1, h2, h3, h4 {
     font-family: 'Lobster', cursive;
 }
 
+.title {
+    display: inline-block;
+    margin-right: 270px;
+}
+
 .date {
     color: #828282;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.edit-btn {
+    display: inline-block;
+    margin-right: 100px;
 }
 
 .save {
