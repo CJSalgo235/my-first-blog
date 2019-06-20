@@ -11,7 +11,7 @@ services:
       retries: 5
   web:
     build: .
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    command: python3 manage.py runserver 0.0.0.0:8000
     container_name: flickr2
     volumes:
       - .:/flickr2
@@ -20,3 +20,5 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+# bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
