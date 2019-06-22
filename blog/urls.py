@@ -1,5 +1,11 @@
+from django.conf.urls import url
 from django.urls import path
 from . import views
+from django.contrib.auth.views import (
+        password_reset, 
+        password_reset_done,
+        password_reset_confirm,
+    )
 
 urlpatterns = [
     path('', views.post_list, name='post_list'),
@@ -12,4 +18,13 @@ urlpatterns = [
     path('post/<int:pk>/comment/', views.add_comment_to_post, name='add_comment_to_post'),
     path('comment/<int:pk>/approve/', views.comment_approve, name='comment_approve'),
     path('comment/<int:pk>/remove/', views.comment_remove, name='comment_remove'),
+    path('accounts/register/', views.register, name='register'),
+    path('accounts/profile/', views.view_profile, name='profile'),
+    path('accounts/profile/edit', views.edit_profile, name='edit_profile'),
+    path('accounts/change-password', views.change_password, name='change_password'),
+    path('accounts/reset-password', password_reset, name='reset_password'),
+    path('accounts/reset-password/done', password_reset_done, name='password_reset_done'),
+    url(r'^accounts/reset-password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    password_reset_confirm,
+    name='password_reset_confirm'),
 ]

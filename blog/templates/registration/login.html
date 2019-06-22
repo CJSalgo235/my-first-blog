@@ -1,63 +1,54 @@
-{% extends "blog/base.html" %}
-
-{% block content %}
-    {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
-    {% endif %}
-
-    <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-        <table>
-        <tr>
-            <td>{{ form.username.label_tag }}</td>
-            <td>{{ form.username }}</td>
-        </tr>
-        <tr>
-            <td>{{ form.password.label_tag }}</td>
-            <td>{{ form.password }}</td>
-        </tr>
-        </table>
-
-        <input type="submit" value="login" />
-        <input type="hidden" name="next" value="{{ next }}" />
-    </form>
-{% endblock %}
-
-<!-- {% load static %}
+{% load static %}
 
 <html>
     <head>
-        <title>Registration Page Design</title>
+        <title>Login Page</title>
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-        <body>
-            <div class="container"></div>
+    </head>
+    <body>
+        <div class="container">
             <div class="row">
-                <div class="col-md-10 offset=mid-1">
+                <div class="col-md-10 offset=md-1">
                     <div class="row">
                         <div class="col-md-5 register-left">
-                            <img src="icon.png">
-                            <a href="https://pngtree.com/free-vectors">free vectors from pngtree.com</a>
+                            <img src="{% static 'images/icon.png' %}">
                             <h3>Join Us</h3>
                             <p>Subscribe Easy Tutorials Youtube Channel to watch more videos</p>
-                            <button type="button" class="btn btn-primary"></button>
+                            <button type="button" class="btn btn-primary">About Us</button>
                         </div>
                         <div class="col-md-7 register-right">
-                            <h2>Register Here</h2>
+                            <h2>Login Here</h2>
                             <div class="register-form">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Name">
-                                    <input type="text" class="form-control" placeholder="Username">
-                                    <input type="text" class="form-control" placeholder="Email">
-                                    <input type="text" class="form-control" placeholder="Password">
-                                    <button type="button" class="btn btn-primary">Register</button>
-                                    
-                                </div>
+                                <form method="post">    
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <br>
+                                        <input type="text" name="{{form.username.html_name}}" class="form-control" placeholder="Username" id="form.username.id_for_label">
+                                        <!-- <input type="text" class="form-control" placeholder="Username"> -->
+                                    </div>
+                                    <div class="form-group">
+                                        <!-- <input type="text" class="form-control" placeholder="Email"> -->
+                                        <br>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="{{form.password.html_name}}" class="form-control" placeholder="Password" id="form.password.id_for_label">
+                                        <!-- <input type="text" class="form-control" placeholder="Password1"> -->
+                                        <br>
+                                    </div>    
+                                    <div class="form-group">
+                                        <!-- <input type="text" class="form-control" placeholder="Password2  "> -->
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" value="login">Submit</button>
+                                    <input type="hidden" name="next" value="{{ next }}" />
+                                    <!-- <button type="button" class="btn btn-primary">Register</button> -->
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </body>
-    </head>
-</html> -->
+        </div>
+    </body>
+</html>
