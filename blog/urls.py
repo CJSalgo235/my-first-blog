@@ -24,7 +24,6 @@ urlpatterns = [
     path('accounts/change-password', views.change_password, name='change_password'),
     path('accounts/reset-password', password_reset, name='reset_password'),
     path('accounts/reset-password/done', password_reset_done, name='password_reset_done'),
-    url(r'^accounts/reset-password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-    password_reset_confirm,
-    name='password_reset_confirm'),
+    path('users', views.users, name="users"),
+    path('users/connect/<operation>/<pk>', views.change_friends, name='change_friends')
 ]

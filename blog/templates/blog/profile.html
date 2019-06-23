@@ -7,5 +7,12 @@
         <p>First Name: {{ user.first_name}}</p>
         <p>Last Name: {{ user.last_name }}</p>
         <p>Email: {{ user.email }}</p>
+        <p>Description: {{ user.userprofile.description }}</p>
+        <p>Phone: {{ user.userprofile.phone }}</p>
+        <p>City: {{ user.userprofile.phone }}</p>
+        <p>Website: {{ user.userprofile.website }}</p>
+        {% if user.userprofile.image %}
+            <img src="{{user.userprofile.image.url}}" width="240">
+        {% endif %}
     </div>
 {% endblock %}

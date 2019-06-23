@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm, CommentForm, RegistrationForm, EditProfileForm
-from .models import Post, Comment
+from .models import Post, Comment, Friend
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
@@ -108,6 +108,7 @@ def view_profile(request):
     args = {'user': request.user}
     return render(request, 'blog/profile.html', args)
 
+@login_required
 def edit_profile(request):
     if request.method == "POST":
         form = EditProfileForm(request.POST, instance=request.user)
@@ -120,6 +121,7 @@ def edit_profile(request):
         args = {'form': form}
         return render(request, 'blog/edit_profile.html', args)
 
+@login_required
 def change_password(request):
     if request.method == "POST":
         form = PasswordChangeForm(data=request.POST, user=request.user)
@@ -136,5 +138,19 @@ def change_password(request):
         form = PasswordChangeForm(user=request.user)
         args = {'form': form}
         return render(request, 'blog/change_password.html', args)
-        
-    
+
+def users(request):
+    users = User.objects.exclude(id=request.user.id)
+    friends = Friend.objects.get(current_user=request.user)
+    friends = friends.users.exclude(id=request.user.id)
+
+    args = {'users': users, 'friends': friends}
+    return render(request, 'blog/users.html', args)
+
+def change_friends(request, operation, pk):
+    friend = User.objects.get(pk=pk)
+    if operation == 'add':
+        Friend.make_friend(request.user, friend)
+    elif operation == 'remove':
+        Friend.lose_friend(request.user, friend)
+    return redirect('/users')
