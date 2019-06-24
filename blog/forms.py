@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Post, Comment
+from .models import Post, Comment, Team
 
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
@@ -11,7 +11,7 @@ from django.contrib.auth.forms import AuthenticationForm
 class PostForm(forms.ModelForm):
 
     class Meta:
-        model = Post   
+        model = Post
         fields = ('title', 'text',)
 
 class CommentForm(forms.ModelForm):
@@ -98,3 +98,8 @@ class EditProfileForm(UserChangeForm):
             'password',
         ) 
         #exclude = ()
+
+class CreateTeamForm(forms.ModelForm):
+    class Meta:
+        model = Team
+        fields = ('name',)

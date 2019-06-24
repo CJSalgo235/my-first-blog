@@ -1,0 +1,23 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <h1>Invites:</h1>
+    <div class="post">
+            {% for invite in invites %}
+                {% if invite.accepted_invite is False and invite.declined_invite is False%}
+                    {{invite}}
+                    {% if not invite.accepted_invite is True %}
+                    <a href="{% url 'invite_accept' pk=invite.pk team=invite.invited_to.pk user=invite.user.id %}">
+                        <button type="button" class="btn btn-success">Accept</button>
+                    </a>
+                    {% endif %}
+                    {% if not invite.declined_invite is True %}
+                    <a href="{% url 'invite_decline' pk=invite.pk%}">
+                        <button type="button" class="btn btn-danger">Decline</button>
+                    </a>
+                    {% endif %}
+                    <br>
+                {% endif %}
+            {% endfor %}
+    </div>
+{% endblock %}

@@ -48,28 +48,37 @@ class UserProfile(models.Model):
 
 def create_profile(sender, **kwargs):
     if kwargs['created']:
-        user_pofile = UserProfile.objects.create(user=kwargs['instance'])
+        user_profile = UserProfile.objects.create(user=kwargs['instance'])
 post_save.connect(create_profile, sender=User)
 
 class Team(models.Model):
     name = models.CharField(max_length=50, default='')
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator')
     members = models.ManyToManyField(User, related_name='members')
+    sent_applications = models.ManyToManyField(User, blank=True, related_name='sent_applications')
+
 
     def __str__(self):
-        return self.name
+        return str(self.name)
+    
+    # def __str__(self):
+    #     return "%s (%s)" % (
+    #         self.name,
+    #         ", ".join(member.username for member in self.members.all()),
+    #     )
 
 class Invite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invitee')
-    invited_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team')
+    invited_to = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_invitation')
     invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inviter')
     accepted_invite = models.BooleanField(default=False)
     declined_invite = models.BooleanField(default=False)
+    sent_invite = models.ManyToManyField(User, blank=True, null=True, related_name='sent_invite')
 
     def __str__(self):
-        return self.invited_to
+        return str(self.invited_to) + " Invitation"
     
-    def approve(self):
+    def accept(self):
         self.accepted_invite = True
         self.save()
     
@@ -78,19 +87,19 @@ class Invite(models.Model):
         self.save()
 
 class Application(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_application')
     applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applicant')
     accepted_applicant = models.BooleanField(default=False)
     rejected_applicant = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.team
+        return str(self.team)
 
     def approve(self):
         self.accepted_applicant = True
         self.save()
 
-    def decline(self):
+    def reject(self):
         self.rejected_applicant = True
         self.save()
 

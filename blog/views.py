@@ -4,11 +4,12 @@ from .models import Post
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from .forms import PostForm, CommentForm, RegistrationForm, EditProfileForm
-from .models import Post, Comment, Friend
+from .forms import PostForm, CommentForm, RegistrationForm, EditProfileForm, CreateTeamForm
+from .models import Post, Comment, Friend, Team, Invite, Application
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
+from django.db.models import Q
 # Create your views here.
 
 def post_list(request):
@@ -154,3 +155,119 @@ def change_friends(request, operation, pk):
     elif operation == 'remove':
         Friend.lose_friend(request.user, friend)
     return redirect('/users')
+
+def invites(request):
+    team = Team.objects.filter(creator=request.user)
+    invites = Invite.objects.exclude(
+        invited_to__in=team,
+        invited_by=request.user
+    )
+    
+    args = {'invites': invites}
+    return render(request, 'blog/invites.html', args)
+
+@login_required
+def invite_accept(request, pk, team, user):
+    invite = get_object_or_404(Invite, pk=pk)
+    invite.accept()
+    invite.save()
+    team = get_object_or_404(Team, pk=team)
+    team.members.add(user)
+    team.save() 
+    return redirect('invites')
+
+@login_required
+def invite_decline(request, pk,):
+    invite = get_object_or_404(Invite, pk=pk)
+    invite.decline()
+    invite.save()
+    return redirect('invites')
+
+@login_required
+def invite_send(request, user, team):
+    invite = Invite(invited_by=request.user)
+    invite.invited_to = get_object_or_404(Team, pk=team)
+    invite.user = get_object_or_404(User, pk=user)
+    invite.save()
+    return redirect('/teams/'+str(team))
+
+@login_required
+def applications(request):
+    #teams = Team.objects.filter(creator=request.user) 
+    applications = Application.objects.filter(team__members__username=request.user)
+    
+    args = {'applications': applications}
+    return render(request, 'blog/applications.html', args)
+
+@login_required
+def application_accept(request, pk, team, applicant):
+        application = get_object_or_404(Application, pk=pk)
+        application.approve()
+        application.save()
+        team = get_object_or_404(Team, pk=team)
+        team.members.add(applicant)
+        team.save()
+        return redirect('/applications')
+
+@login_required
+def application_reject(request, pk, team):
+    application = get_object_or_404(Application, pk=pk)
+    application.reject()
+    return redirect('applications')
+
+@login_required
+def application_join(request, pk):
+    application = Application(applicant=request.user)
+    application.team = get_object_or_404(Team, pk=pk)
+    application.save()  
+    team = get_object_or_404(Team, pk=pk)
+    team.sent_applications.add(request.user.id)
+    team.save()
+    return redirect('teams')
+
+def teams(request):
+    all_teams = Team.objects.all()
+    created_teams = Team.objects.filter(creator=request.user)
+    joined_teams = Team.objects.filter(members__username=request.user)
+    other_teams = Team.objects.filter(~Q(members__username=request.user))
+    applications = Application.objects.filter(applicant=request.user)
+    sent_applications = Team.objects.filter(sent_applications=request.user)
+    #other_teams_applications = zip(other_teams, applications)
+    user = User.objects.get(id=request.user.id)
+    
+    args = {
+        'all_teams': all_teams,
+        'created_teams': created_teams,
+        'joined_teams': joined_teams,
+        'other_teams': other_teams,
+        'applications': applications,
+        'sent_applications': sent_applications,
+        #'other_teams_applicatins': other_teams_applications,
+        'user': user,
+    }
+    return render(request, 'blog/teams.html', args)
+
+def create_team(request):
+    if request.method == 'POST':
+        form = CreateTeamForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.creator = request.user
+            post.save()
+            return redirect('/teams/create')
+    else:
+        form = CreateTeamForm()
+    return render(request, 'blog/create_team.html', {'form': form})
+
+def team_detail(request, pk):
+    team = get_object_or_404(Team, pk=pk)
+    team_members = User.objects.filter(members=team)
+    non_members = User.objects.filter(~Q(members=team))
+    sent_invites = User.objects.filter(sent_invite=request.user.id)
+    args = {
+        'team': team,
+        'team_members': team_members,
+        'non_members': non_members,
+        'sent_invites': sent_invites,
+    }
+    return render(request, 'blog/team_details.html', args)

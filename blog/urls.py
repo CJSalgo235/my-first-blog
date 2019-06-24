@@ -25,5 +25,16 @@ urlpatterns = [
     path('accounts/reset-password', password_reset, name='reset_password'),
     path('accounts/reset-password/done', password_reset_done, name='password_reset_done'),
     path('users', views.users, name="users"),
-    path('users/connect/<operation>/<pk>', views.change_friends, name='change_friends')
+    path('users/connect/<operation>/<pk>', views.change_friends, name='change_friends'),
+    path('invites/', views.invites, name="invites"),
+    path('invites/<int:pk>/<int:team>/<int:user>/accept/', views.invite_accept, name="invite_accept"),
+    path('invites/<int:pk>/decline/', views.invite_decline, name="invite_decline"),
+    path('invites/<int:user>/<int:team>/send/', views.invite_send, name="invite_send"),
+    path('applications/', views.applications, name="applications"),
+    path('applications/<int:pk>/<int:team>/<int:applicant>/accept/', views.application_accept, name="application_accept"),
+    path('applications/<int:pk>/<int:team>/<int:applicant>/reject/', views.application_reject, name="application_reject"),
+    path('applications/<int:pk>/join/', views.application_join, name="application_join"),
+    path('teams/', views.teams, name="teams"),
+    path('teams/create', views.create_team, name="create_team"),
+    path('teams/<int:pk>', views.team_detail, name="team_detail"),
 ]

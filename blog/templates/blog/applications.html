@@ -1,0 +1,23 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <h1>Applications:</h1>
+    <div class="post">
+            {% for application in applications %}
+                {% if application.accepted_applicant is False and application.rejected_applicant is False %}
+                    {{application.applicant}} wants to join {{application.team}}
+                    {% if not application.accepted_applicant is True %}
+                    <a href="{% url 'application_accept' pk=application.pk team=application.team.pk applicant=application.applicant.pk%}">
+                        <button type="button" class="btn btn-success">Accept</button>
+                    </a>
+                    {% endif %}
+                    {% if not application.rejected_applicant is True %}
+                    <a href="{% url 'application_reject' pk=application.pk team=application.team.pk applicant=application.applicant.pk%}">
+                        <button type="button" class="btn btn-danger">Decline</button>
+                    </a>
+                    {% endif %}
+                    <br>
+                {% endif %}
+            {% endfor %}
+    </div>
+{% endblock %}

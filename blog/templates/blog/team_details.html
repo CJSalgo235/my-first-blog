@@ -1,0 +1,31 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <div class="post">
+        <h1 class="title">{{ team.name }}</h1>
+        created by: {{team.creator}}
+        <br>
+        <br>
+        members:
+        <br>
+        {% for team_member in team_members %}
+            {{team_member}}
+            <br>
+        {% endfor %}
+        <br>
+        <br>
+        non_members:
+        <br>
+        {% for non_member in non_members %}]
+        {{sent_invites}}
+            {% if not non_member in sent_invites%}
+                {{non_member}}
+                <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}">
+                        <button type="button" class="btn btn-success">Send Invite</button>
+                </a>
+                <br>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+{% endblock %}

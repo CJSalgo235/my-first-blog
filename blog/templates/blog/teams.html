@@ -1,0 +1,39 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <a href="{% url 'create_team' %}" class="top-menu">Create Team</a>
+    <h1>All Teams:</h1>
+    <div class="post">
+            {% for team in all_teams %}
+                <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
+                <br>
+            {% endfor %}
+    </div>
+    <h1>Created Teams:</h1>
+    <div class="post">
+            {% for team in created_teams %}
+                {{team}}
+                <br>
+            {% endfor %}
+    </div>
+    <h1>Joined Teams:</h1>
+    <div class="post">
+            {% for team in joined_teams %}
+                {{team}}
+                <br>
+            {% endfor %}
+    </div>
+    <h1>Other Teams:</h1>
+    <div class="post">
+        {% for team in other_teams %}
+                {% if not team in sent_applications%}
+                    {{team}}
+                    <form method="POST" class="post-form" action="{% url 'application_join' pk=team.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Join</button>
+                    </form>
+                    <br>
+                {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
