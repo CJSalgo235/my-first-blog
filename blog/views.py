@@ -12,18 +12,24 @@ from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
 # Create your views here.
 
-def post_list(request):
+def post_list(request): 
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+    teams = Team.objects.filter(posted_to=post)
+
+    args = {
+        'post': post,
+        'teams': teams
+    }
+    return render(request, 'blog/post_detail.html', args)
 
 @login_required
 def post_new(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -33,11 +39,27 @@ def post_new(request):
         form = PostForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
+def post_new_to_team(request, team):
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()          
+            post = get_object_or_404(Post, pk=post.pk)
+            post.team.add(team) 
+            post.save()
+            return redirect('team_detail', pk=team)
+            
+    else:
+        form = PostForm()
+    return render(request, 'blog/post_edit.html', {'form': form})
+
 @login_required
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = PostForm(request.POST, request.FILES,instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -105,8 +127,17 @@ def register(request):
             args = {'form': form}
             return render(request, 'registration/register.html', args)
 
-def view_profile(request):
-    args = {'user': request.user}
+def view_profile(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    private_posts = Post.objects.filter(author=request.user)
+    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(team=pk)
+
+    args = {
+        'user': user,
+        'private_posts': private_posts,
+        'public_posts': public_posts,
+    }
+
     return render(request, 'blog/profile.html', args)
 
 @login_required
@@ -231,7 +262,8 @@ def teams(request):
     joined_teams = Team.objects.filter(members__username=request.user)
     other_teams = Team.objects.filter(~Q(members__username=request.user))
     applications = Application.objects.filter(applicant=request.user)
-    sent_applications = Team.objects.filter(sent_applications=request.user)
+    sent_applications = Team.objects.filter(team_application__in=Application.objects.filter(applicant=request.user))
+    #sent_applications = Team.objects.filter(sent_applications=request.user)
     #other_teams_applications = zip(other_teams, applications)
     user = User.objects.get(id=request.user.id)
     
@@ -263,11 +295,16 @@ def team_detail(request, pk):
     team = get_object_or_404(Team, pk=pk)
     team_members = User.objects.filter(members=team)
     non_members = User.objects.filter(~Q(members=team))
-    sent_invites = User.objects.filter(sent_invite=request.user.id)
+    private_posts = Post.objects.filter(team=pk)
+    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(team=pk)
+    sent_invites = User.objects.filter(invitee__in=Invite.objects.filter(invited_to=team))
+
     args = {
         'team': team,
         'team_members': team_members,
         'non_members': non_members,
+        'private_posts': private_posts,
+        'public_posts': public_posts,
         'sent_invites': sent_invites,
     }
     return render(request, 'blog/team_details.html', args)

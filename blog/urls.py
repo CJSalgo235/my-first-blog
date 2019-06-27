@@ -19,7 +19,7 @@ urlpatterns = [
     path('comment/<int:pk>/approve/', views.comment_approve, name='comment_approve'),
     path('comment/<int:pk>/remove/', views.comment_remove, name='comment_remove'),
     path('accounts/register/', views.register, name='register'),
-    path('accounts/profile/', views.view_profile, name='profile'),
+    path('accounts/<int:pk>/profile/', views.view_profile, name='profile'),
     path('accounts/profile/edit', views.edit_profile, name='edit_profile'),
     path('accounts/change-password', views.change_password, name='change_password'),
     path('accounts/reset-password', password_reset, name='reset_password'),
@@ -37,4 +37,5 @@ urlpatterns = [
     path('teams/', views.teams, name="teams"),
     path('teams/create', views.create_team, name="create_team"),
     path('teams/<int:pk>', views.team_detail, name="team_detail"),
+    path('teams/<int:team>/post', views.post_new_to_team, name='post_new_to_team'),
 ]

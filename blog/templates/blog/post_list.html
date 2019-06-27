@@ -2,8 +2,11 @@
 
 {% block content %}
     {% for post in posts %}
+        <a href="{% url 'post_new' %}">New Post</a>
         <div class="post">
+                <img src={{post.image.url}}/>
             <div class="date">
+                <p>posted by: {{ post.author }}</p>
                 <p>published: {{ post.published_date }}</p>
             </div>
             <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>

@@ -1,0 +1,10 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <h2>New post</h2>
+    <form method="POST" action="{% url 'post_new_to_team' team=post.pk %}" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+        {{ form.fields.title }}
+
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}

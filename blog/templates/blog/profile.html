@@ -14,5 +14,31 @@
         {% if user.userprofile.image %}
             <img src="{{user.userprofile.image.url}}" width="240">
         {% endif %}
+
+        {% if request.user == user %}
+            {% for private_post in private_posts %}
+                <div class="post">
+                        <img src={{private_post.image.url}}/>
+                    <div class="date">
+                        <p>published: {{ private_post.published_date }}</p>
+                    </div>
+                    <h1><a href="{% url 'post_detail' pk=private_post.pk %}">{{ private_post.title }}</a></h1>
+                    <p>{{ private_post.text|linebreaksbr }}</p>
+                    <a href="{% url 'post_detail' pk=private_post.pk %}">Comments: {{ private_post.approved_comments.count }}</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% for public_post in public_posts %}
+                <div class="post">
+                        <img src={{public_post.image.url}}/>
+                    <div class="date">
+                        <p>published: {{ public_post.published_date }}</p>
+                    </div>
+                    <h1><a href="{% url 'post_detail' pk=public_post.pk %}">{{ public_post.title }}</a></h1>
+                    <p>{{ public_post.text|linebreaksbr }}</p>
+                    <a href="{% url 'post_detail' pk=public_post.pk %}">Comments: {{ public_post.approved_comments.count }}</a>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}

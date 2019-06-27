@@ -2,6 +2,8 @@
 
 {% block content %}
     <div class="post">
+        <a href="{% url 'post_new_to_team' team=team.pk%}">post new</a>
+        <br>
         <h1 class="title">{{ team.name }}</h1>
         created by: {{team.creator}}
         <br>
@@ -16,16 +18,44 @@
         <br>
         non_members:
         <br>
-        {% for non_member in non_members %}]
-        {{sent_invites}}
-            {% if not non_member in sent_invites%}
-                {{non_member}}
-                <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}">
-                        <button type="button" class="btn btn-success">Send Invite</button>
-                </a>
-                <br>
-            {% endif %}
-        {% endfor %}
 
+        {% for non_member in non_members %} 
+            {{non_member}}
+            
+                {% if non_member in sent_invites %}
+                    <button type="button" class="btn btn-default" disabled>Invite Already Sent</button>
+                {% else %}    
+                <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}"></a>
+                    <button type="button" class="btn btn-success">Send Invite</button>
+                </a>
+                {% endif %}
+            
+            <br>
+        {% endfor %}
+        {% if request.user in team_members %}
+            {% for private_post in private_posts %}
+                <div class="post">
+                        <img src={{private_post.image.url}}/>
+                    <div class="date">
+                        <p>published: {{ private_post.published_date }}</p>
+                    </div>
+                    <h1><a href="{% url 'post_detail' pk=private_post.pk %}">{{ private_post.title }}</a></h1>
+                    <p>{{ private_post.text|linebreaksbr }}</p>
+                    <a href="{% url 'post_detail' pk=private_post.pk %}">Comments: {{ private_post.approved_comments.count }}</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% for public_post in public_posts %}
+                <div class="post">
+                        <img src={{public_post.image.url}}/>
+                    <div class="date">
+                        <p>published: {{ public_post.published_date }}</p>
+                    </div>
+                    <h1><a href="{% url 'post_detail' pk=public_post.pk %}">{{ public_post.title }}</a></h1>
+                    <p>{{ public_post.text|linebreaksbr }}</p>
+                    <a href="{% url 'post_detail' pk=public_post.pk %}">Comments: {{ public_post.approved_comments.count }}</a>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}

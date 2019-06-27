@@ -1,8 +1,15 @@
-{% extends 'blog/base.html' %}
+{% extends 'MDB/base.html' %}
 
 {% block content %}
     <div class="post">
         <h2 class="title">{{ post.title }}</h2>
+        <p>posted by: 
+            {% if post.author == user %} 
+                you 
+            {% else %}
+                {{post.author}}
+            {% endif %}    
+        </p>
         {% if post.published_date %}
             <div class="date">
                 {{ post.published_date }}
@@ -12,14 +19,28 @@
         {% endif %}
 
         {% if user.is_authenticated %}
-            <a class="btn btn-default edit-btn" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <a class="btn btn-default edit-btn" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span>Edit</a>
         {% endif %}
 
         {% if user.is_authenticated %}
-            <a class="btn btn-default delete-btn" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+            <a class="btn btn-default delete-btn" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span>Remove</a>
         {% endif %}
         <p>{{ post.text|linebreaksbr }}</p>
         <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.comments.count }}</a>
+        <br>
+        <br>
+        <img src={{post.image.url}}/>
+        
+        <br>
+        <br>
+        This photo is in {{teams.count}}
+            {% if teams.count > 1 %}  teams :
+            {% else %}  team :
+            {% endif %}
+        {% for team in teams %}
+            <br>
+            <a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a>
+        {% endfor %}
     </div>
 
     <hr>

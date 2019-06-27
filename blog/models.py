@@ -10,6 +10,8 @@ class Post(models.Model):
     text = models.TextField()    
     created_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
+    image = models.ImageField(upload_to='post_images', blank=True)
+    team = models.ManyToManyField('Team', blank=True, null=True, related_name='posted_to')
 
     def publish(self):
         self.published_date = timezone.now()
@@ -55,8 +57,7 @@ class Team(models.Model):
     name = models.CharField(max_length=50, default='')
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator')
     members = models.ManyToManyField(User, related_name='members')
-    sent_applications = models.ManyToManyField(User, blank=True, related_name='sent_applications')
-
+    #sent_applications = models.ManyToManyField(User, blank=True, related_name='sent_applications')
 
     def __str__(self):
         return str(self.name)
@@ -73,10 +74,10 @@ class Invite(models.Model):
     invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inviter')
     accepted_invite = models.BooleanField(default=False)
     declined_invite = models.BooleanField(default=False)
-    sent_invite = models.ManyToManyField(User, blank=True, null=True, related_name='sent_invite')
+    #sent_invite = models.ManyToManyField(User, blank=True, null=True, related_name='sent_invite')
 
     def __str__(self):
-        return str(self.invited_to) + " Invitation"
+        return str(self.invited_by) + " invited you to join " + str(self.invited_to)
     
     def accept(self):
         self.accepted_invite = True
@@ -123,4 +124,3 @@ class Friend(models.Model):
     
     def __str__(self):
         return str(self.current_user) + "'s friends"
-

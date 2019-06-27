@@ -9,10 +9,9 @@ from django.contrib.auth.forms import AuthenticationForm
 #These are all Custom Forms
 
 class PostForm(forms.ModelForm):
-
     class Meta:
         model = Post
-        fields = ('title', 'text',)
+        fields = ('title', 'text', 'image')
 
 class CommentForm(forms.ModelForm):
 
