@@ -1,17 +1,48 @@
 {% extends 'MDB/base.html' %}
 
 {% block content %}
-    {% for post in posts %}
-        <a href="{% url 'post_new' %}">New Post</a>
-        <div class="post">
-                <img src={{post.image.url}}/>
-            <div class="date">
-                <p>posted by: {{ post.author }}</p>
-                <p>published: {{ post.published_date }}</p>
+    <!-- <a href="{% url 'post_new' %}">New Post</a> -->
+    <div class="container-fluid">
+        {% for post in posts %}
+            <br>
+            {% if forloop.first %}<div class="row">{% endif %}
+            <div class="col">
+                <!-- Card -->
+                    <div class="card hoverable">    
+                    <!-- Card content -->
+                        <div class="card-body">
+                            <a href="{% url 'profile' pk=post.author.pk %}" style="text-decoration : none; color : #000; ">
+                                    <img src={{post.author.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                    {{ post.author }}
+                            </a>          
+                        </div>                     
+                    <!-- Card image -->
+                        <div class="view overlay">
+                            <img class="card-img-top" src={{post.image.url}} alt="Card image cap">
+                                <!-- <img class="card-img-top" src={{post.image.url}} alt="Card image cap"> -->
+                                <a href="{% url 'post_detail' pk=post.pk %}">
+                                    <div class="mask rgba-white-slight"></div>
+                                </a>
+                        </div>
+
+                        <!-- Card content -->
+                        <div class="card-body">
+                    
+                            <!-- Title -->
+                            <h5 class="card-title" href= "{% url 'post_detail' pk=post.pk %}">{{ post.title }}</h5>
+                            <hr>
+                            <!-- Text -->
+                            <a class="card-text" href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
+                    
+                        </div>                
+                    </div>
+                    <br><br>
+                <!-- Card -->
             </div>
-            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            <p>{{ post.text|linebreaksbr }}</p>
-            <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
-        </div>
-    {% endfor %}
+            {% if forloop.counter|divisibleby:3 %}</div><div class="row">
+            {% elif forloop.counter|divisibleby:2 and forloop.last %}<div class="col"></div></div>  
+            {% elif forloop.counter|divisibleby:1 and forloop.last %}<div class="col"></div><div class="col"></div></div>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}

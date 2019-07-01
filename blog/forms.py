@@ -9,6 +9,29 @@ from django.contrib.auth.forms import AuthenticationForm
 #These are all Custom Forms
 
 class PostForm(forms.ModelForm):
+    title = forms.CharField(widget=forms.TextInput(
+        attrs = {
+            'id': 'defaultFormNameModalEx',
+            'class': 'form-control form-control-sm',
+        }
+    ))
+
+    text = forms.CharField(widget=forms.TextInput(
+        attrs = {
+            'id': 'defaultFormNameModalEx',
+            'class': 'form-control form-control-sm',
+        }
+    ))
+
+
+    image = forms.ImageField(widget=forms.FileInput(
+        attrs = {
+            'id': 'inputGroupFile01',
+            'class': 'custom-file-input',
+            'aria-describedby': 'inputGroupFileAddon01'
+        }
+    ))
+
     class Meta:
         model = Post
         fields = ('title', 'text', 'image')
@@ -17,7 +40,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ('author', 'text',)
+        fields = ('text',)
 
 class RegistrationForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(
@@ -99,6 +122,21 @@ class EditProfileForm(UserChangeForm):
         #exclude = ()
 
 class CreateTeamForm(forms.ModelForm):
+    name = forms.CharField(widget=forms.TextInput(
+        attrs = {
+            'id': 'defaultFormNameModalEx',
+            'class': 'form-control form-control-sm',
+        }
+    ))
+
+    image = forms.ImageField(widget=forms.FileInput(
+        attrs = {
+            'id': 'inputGroupFile01',
+            'class': 'custom-file-input',
+            'aria-describedby': 'inputGroupFileAddon01'
+        }
+    ))
+
     class Meta:
         model = Team
-        fields = ('name',)
+        fields = ('name', 'image')

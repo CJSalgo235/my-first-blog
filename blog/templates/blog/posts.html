@@ -1,0 +1,111 @@
+{% extends 'MDB/base.html' %}
+
+{% block content %}
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                    aria-selected="true">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" style="color: hsl(0, 0%, 13%);" id="public_posts-tab" data-toggle="tab" href="#public_posts" role="tab" aria-controls="public_posts"
+                aria-selected="true">Public Posts</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: hsl(0, 0%, 13%);" id="private_posts-tab" data-toggle="tab" href="#private_posts" role="tab" aria-controls="private_posts"
+                aria-selected="false">Private Posts</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'post_new' %}">New Post</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="public_posts" role="tabpanel" aria-labelledby="public_posts-tab">
+                    {% for post in public_posts %}
+                    <br>
+                    {% if forloop.first %}<div class="row">{% endif %}
+                    <div class="col">
+                        <!-- Card -->
+                            <div class="card hoverable">    
+                            <!-- Card content -->
+                                <div class="card-body">
+                                    <a href="{% url 'profile' pk=post.author.pk %}" style="text-decoration : none; color : #000; ">
+                                            <img src={{post.author.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                            {{ post.author }}
+                                    </a>          
+                                </div>                     
+                            <!-- Card image -->
+                                <div class="view overlay">
+                                    <img class="card-img-top" src={{post.image.url}} alt="Card image cap">
+                                        <!-- <img class="card-img-top" src={{post.image.url}} alt="Card image cap"> -->
+                                        <a href="{% url 'post_detail' pk=post.pk %}">
+                                            <div class="mask rgba-white-slight"></div>
+                                        </a>
+                                </div>
+                
+                                <!-- Card content -->
+                                <div class="card-body">
+                            
+                                    <!-- Title -->
+                                    <h5 class="card-title" href= "{% url 'post_detail' pk=post.pk %}">{{ post.title }}</h5>
+                                    <hr>
+                                    <!-- Text -->
+                                    <a class="card-text" href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
+                            
+                                </div>                
+                            </div>
+                        <!-- Card -->
+                        <br><br>
+                    </div>
+                    {% if forloop.counter|divisibleby:3 %}</div><div class="row">
+                    {% elif forloop.counter|divisibleby:2 and forloop.last %}<div class="col"></div></div>  
+                    {% elif forloop.counter|divisibleby:1 and forloop.last %}<div class="col"></div><div class="col"></div></div>
+                    {% endif %} 
+                    {% endfor %} 
+                </div>
+            </div>
+            <div class="tab-pane fade" id="private_posts" role="tabpanel" aria-labelledby="private_posts-tab">
+                    {% for post in private_posts %}
+                    <br>
+                    {% if forloop.first %}<div class="row">{% endif %}
+                    <div class="col">
+                        <!-- Card -->
+                            <div class="card hoverable">    
+                            <!-- Card content -->
+                                <div class="card-body">
+                                    <a href="{% url 'profile' pk=post.author.pk %}" style="text-decoration : none; color : #000; ">
+                                            <img src={{post.author.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                            {{ post.author }}
+                                    </a>          
+                                </div>                     
+                            <!-- Card image -->
+                                <div class="view overlay">
+                                    <img class="card-img-top" src={{post.image.url}} alt="Card image cap">
+                                        <!-- <img class="card-img-top" src={{post.image.url}} alt="Card image cap"> -->
+                                        <a href="{% url 'post_detail' pk=post.pk %}">
+                                            <div class="mask rgba-white-slight"></div>
+                                        </a>
+                                </div>
+                
+                                <!-- Card content -->
+                                <div class="card-body">
+                            
+                                    <!-- Title -->
+                                    <h5 class="card-title" href= "{% url 'post_detail' pk=post.pk %}">{{ post.title }}</h5>
+                                    <hr>
+                                    <!-- Text -->
+                                    <a class="card-text" href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
+                            
+                                </div>                
+                            </div>
+                            <br><br>
+                        <!-- Card -->
+                    </div>
+                    {% if forloop.counter|divisibleby:3 %}</div><div class="row">
+                    {% elif forloop.counter|divisibleby:2 and forloop.last %}<div class="col"></div></div>  
+                    {% elif forloop.counter|divisibleby:1 and forloop.last %}<div class="col"></div><div class="col"></div></div>
+                    {% endif %}
+                    {% endfor %} 
+
+            </div>
+        </div>
+{% endblock %}

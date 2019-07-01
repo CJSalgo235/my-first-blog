@@ -22,7 +22,7 @@
 
   <!-- Start your project here-->
   <!--Navbar -->
-  <nav class="mb-1 navbar navbar-expand-lg navbar-dark orange lighten-1">
+  <nav class="mb-1 navbar navbar-expand-lg navbar-dark lighten-1" style="background-color: hsl(0, 0%, 13%);">
     <a class="navbar-brand" href="/">Flickr 2</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-555"
       aria-controls="navbarSupportedContent-555" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,25 +30,25 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent-555">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/drafts">Drafts 
+        <li class="nav-item {{posts_page}}">
+          <a class="nav-link" href="/posts">Posts 
             <!-- <span class="sr-only">(current)</span> -->
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item {{teams_page}}">
           <a class="nav-link" href="/teams">Teams 
             <!-- <span class="sr-only">(current)</span> -->
           </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/users">Users 
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="/users">Users  -->
               <!-- <span class="sr-only">(current)</span> -->
-            </a>
-          </li>
-        <li class="nav-item">
+            <!-- </a>
+          </li> -->
+        <li class="nav-item {{invites_page}}">
           <a class="nav-link" href="/invites">Invites</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item {{applications_page}}">
             <a class="nav-link" href="/applications">Applicants</a>
           </li>
         <!-- <li class="nav-item dropdown">
@@ -100,8 +100,14 @@
     </div>
   </nav>
   <!--/.Navbar -->
-  
   {% block content %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
   {% endblock %}
   <!-- Start your project here-->
 

@@ -10,6 +10,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 # Create your views here.
 
 def post_list(request): 
@@ -39,6 +41,7 @@ def post_new(request):
         form = PostForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
+@login_required
 def post_new_to_team(request, team):
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
@@ -70,9 +73,17 @@ def post_edit(request, pk):
     return render(request, 'blog/post_edit.html', {'form': form})
 
 @login_required
-def post_draft_list(request):
-    posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
-    return render(request, 'blog/post_draft_list.html', {'posts': posts})
+def posts(request):
+    private_posts = Post.objects.filter(published_date__isnull=True).order_by('created_date').filter(author=request.user.pk)
+    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(author=request.user.pk) 
+
+    args = {
+        'private_posts': private_posts,
+        'public_posts': public_posts,
+        "posts_page": "active",
+    }
+
+    return render(request, 'blog/posts.html', args)
 
 @login_required
 def post_publish(request, pk):
@@ -86,6 +97,7 @@ def post_remove(request, pk):
     post.delete()
     return redirect('post_list')
 
+@login_required
 def add_comment_to_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
@@ -93,6 +105,7 @@ def add_comment_to_post(request, pk):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
+            comment.author = request.user
             comment.save()
             return redirect('post_detail', pk=post.pk)
     else:
@@ -116,7 +129,13 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_user = form.save()
+            messages.success(request, "Thanks for registering. You are now logged in.")
+            new_user = authenticate(username=form.cleaned_data['username'],
+                                    password=form.cleaned_data['password1'],
+                                    )
+            login(request, new_user)
+ 
             return redirect('/')
     else:
         if request.user.is_authenticated:
@@ -127,10 +146,11 @@ def register(request):
             args = {'form': form}
             return render(request, 'registration/register.html', args)
 
+@login_required
 def view_profile(request, pk):
     user = get_object_or_404(User, pk=pk)
-    private_posts = Post.objects.filter(author=request.user)
-    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(team=pk)
+    private_posts = Post.objects.filter(published_date__isnull=True).order_by('created_date').filter(author=request.user.pk)
+    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(author=pk)
 
     args = {
         'user': user,
@@ -171,6 +191,7 @@ def change_password(request):
         args = {'form': form}
         return render(request, 'blog/change_password.html', args)
 
+@login_required
 def users(request):
     users = User.objects.exclude(id=request.user.id)
     friends = Friend.objects.get(current_user=request.user)
@@ -179,6 +200,7 @@ def users(request):
     args = {'users': users, 'friends': friends}
     return render(request, 'blog/users.html', args)
 
+@login_required
 def change_friends(request, operation, pk):
     friend = User.objects.get(pk=pk)
     if operation == 'add':
@@ -187,6 +209,7 @@ def change_friends(request, operation, pk):
         Friend.lose_friend(request.user, friend)
     return redirect('/users')
 
+@login_required
 def invites(request):
     team = Team.objects.filter(creator=request.user)
     invites = Invite.objects.exclude(
@@ -194,7 +217,10 @@ def invites(request):
         invited_by=request.user
     )
     
-    args = {'invites': invites}
+    args = {
+        'invites': invites,
+        "invites_page": "active"
+    }
     return render(request, 'blog/invites.html', args)
 
 @login_required
@@ -225,9 +251,12 @@ def invite_send(request, user, team):
 @login_required
 def applications(request):
     #teams = Team.objects.filter(creator=request.user) 
-    applications = Application.objects.filter(team__members__username=request.user)
+    applications = Application.objects.filter(team__creator__username=request.user)
     
-    args = {'applications': applications}
+    args = {
+        'applications': applications,
+        "applications_page": "active"
+    }
     return render(request, 'blog/applications.html', args)
 
 @login_required
@@ -252,59 +281,91 @@ def application_join(request, pk):
     application.team = get_object_or_404(Team, pk=pk)
     application.save()  
     team = get_object_or_404(Team, pk=pk)
-    team.sent_applications.add(request.user.id)
-    team.save()
     return redirect('teams')
 
+@login_required
 def teams(request):
-    all_teams = Team.objects.all()
-    created_teams = Team.objects.filter(creator=request.user)
-    joined_teams = Team.objects.filter(members__username=request.user)
-    other_teams = Team.objects.filter(~Q(members__username=request.user))
-    applications = Application.objects.filter(applicant=request.user)
-    sent_applications = Team.objects.filter(team_application__in=Application.objects.filter(applicant=request.user))
-    #sent_applications = Team.objects.filter(sent_applications=request.user)
-    #other_teams_applications = zip(other_teams, applications)
-    user = User.objects.get(id=request.user.id)
-    
-    args = {
-        'all_teams': all_teams,
-        'created_teams': created_teams,
-        'joined_teams': joined_teams,
-        'other_teams': other_teams,
-        'applications': applications,
-        'sent_applications': sent_applications,
-        #'other_teams_applicatins': other_teams_applications,
-        'user': user,
-    }
-    return render(request, 'blog/teams.html', args)
+    if request.method == 'POST':
+        form = CreateTeamForm(request.POST, request.FILES)
+        if form.is_valid():
+            team = form.save(commit=False)
+            team.creator = request.user
+            team.save()
+            team = get_object_or_404(Team, pk=team.pk)
+            team.members.add(request.user)
+            return redirect('/teams')
+    else: 
+        all_teams = Team.objects.all()
+        created_teams = Team.objects.filter(creator=request.user)
+        joined_teams = Team.objects.filter(members__username=request.user).filter(~Q(creator=request.user))
+        other_teams = Team.objects.filter(~Q(members__username=request.user))
+        applications = Application.objects.filter(applicant=request.user)
+        sent_applications = Team.objects.filter(team_application__in=Application.objects.filter(applicant=request.user))
+        #sent_applications = Team.objects.filter(sent_applications=request.user)
+        #other_teams_applications = zip(other_teams, applications)
+        user = User.objects.get(id=request.user.id)
+        posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+        form = CreateTeamForm() #Create Team Form
 
+        args = {
+            'all_teams': all_teams,
+            'created_teams': created_teams,
+            'joined_teams': joined_teams,
+            'other_teams': other_teams,
+            'applications': applications,
+            'sent_applications': sent_applications,
+            #'other_teams_applicatins': other_teams_applications,
+            'user': user,
+            'posts': posts,
+            "teams_page": "active",
+            'form': form
+            
+        }
+        return render(request, 'blog/teams.html', args)
+
+@login_required
 def create_team(request):
     if request.method == 'POST':
-        form = CreateTeamForm(request.POST)
+        form = CreateTeamForm(request.POST, request.FILES)
         if form.is_valid():
-            post = form.save(commit=False)
-            post.creator = request.user
-            post.save()
-            return redirect('/teams/create')
+            team = form.save(commit=False)
+            team.creator = request.user
+            team.save()
+            team = get_object_or_404(Team, pk=team.pk)
+            team.members.add(request.user)
+            return redirect('/teams')
     else:
         form = CreateTeamForm()
     return render(request, 'blog/create_team.html', {'form': form})
 
+@login_required
 def team_detail(request, pk):
-    team = get_object_or_404(Team, pk=pk)
-    team_members = User.objects.filter(members=team)
-    non_members = User.objects.filter(~Q(members=team))
-    private_posts = Post.objects.filter(team=pk)
-    public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(team=pk)
-    sent_invites = User.objects.filter(invitee__in=Invite.objects.filter(invited_to=team))
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()          
+            post = get_object_or_404(Post, pk=post.pk)
+            post.team.add(team) 
+            post.save()
+            return redirect('team_detail', pk=team)
+    else:
+        team = get_object_or_404(Team, pk=pk)
+        team_members = User.objects.filter(members=team)
+        non_members = User.objects.filter(~Q(members=team))
+        private_posts = Post.objects.filter(team=pk)
+        public_posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date').filter(team=pk)
+        sent_invites = User.objects.filter(invitee__in=Invite.objects.filter(invited_to=team))
+        form = PostForm()
 
-    args = {
-        'team': team,
-        'team_members': team_members,
-        'non_members': non_members,
-        'private_posts': private_posts,
-        'public_posts': public_posts,
-        'sent_invites': sent_invites,
-    }
-    return render(request, 'blog/team_details.html', args)
+        args = {
+            'team': team,
+            'team_members': team_members,
+            'non_members': non_members,
+            'private_posts': private_posts,
+            'public_posts': public_posts,
+            'sent_invites': sent_invites,
+            'form': form
+        }
+        return render(request, 'blog/team_details.html', args)

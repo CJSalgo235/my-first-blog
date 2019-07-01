@@ -1,61 +1,379 @@
 {% extends 'MDB/base.html' %}
 
 {% block content %}
-    <div class="post">
-        <a href="{% url 'post_new_to_team' team=team.pk%}">post new</a>
-        <br>
-        <h1 class="title">{{ team.name }}</h1>
-        created by: {{team.creator}}
-        <br>
-        <br>
-        members:
-        <br>
-        {% for team_member in team_members %}
-            {{team_member}}
-            <br>
-        {% endfor %}
-        <br>
-        <br>
-        non_members:
-        <br>
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                    aria-selected="true">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" style="color: hsl(0, 0%, 13%);" id="all_teams-tab" data-toggle="tab" href="#all_teams" role="tab" aria-controls="all_teams"
+                aria-selected="true">{{team.name}}</a>
+            </li>
+            {% if request.user in team_members %}
+                <li class="nav-item">
+                    <!-- <a href="{% url 'create_team' %}" class="nav-link" style="color:darkorange;">Create Team</a> -->
+                    <a class="nav-link" style="color: darkorange;" id="create_teams-tab" data-toggle="tab" href="#create_team" role="tab" aria-controls="create_team"
+                    aria-selected="false">Post New</a>
+                </li>
+            {% endif %}
+          </ul> 
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="all_teams" role="tabpanel" aria-labelledby="all_teams-tab">
+            <div class="container-fluid">
+                <br>
+                <div class="row">
+                        <div class="col">
+                                <!-- Card -->
+                                   <div class="card">
+       
+                                           <!-- Card image -->
+                                           <img class="card-img-top" src="{{team.image.url}}" alt="Card image cap">
+                                       
+                                           <!-- Card content -->
+                                           <div class="card-body">
+                                       
+                                           <!-- Title -->
+                                           <h4 class="card-title"><a>BlackAndWhite</a></h4>
+                                           <!-- Text -->
+                                           <p class="card-text">Created By: {{team.creator}}</p>
+                                       
+                                        </div>
+       
+                                   </div>
+                               <!-- Card -->
+                           </div>
+                    <div class="col">
+                           <!-- Card -->
+                                <div class="card">
+                                    
+                                    <!-- Card content -->
+                                    <div class="card-body">
+                                            <table class="table">
+                                                    <thead>
+                                                      <tr>
+                                                        <th scope="col">  
+                                                            <h4 class="card-title">Members</h4>                                                  
+                                                        </th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for team_member in team_members %}
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="{% url 'profile' pk=team_member.pk %}" style="text-decoration : none; color : #000; ">
+                                                                            <img src={{team_member.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                                                            &nbsp&nbsp{{team_member}}
+                                                                    </a>                                                                     
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}                                              
+                                                    </tbody>
+                                                  </table>
+                                        
+                                    
+                                    </div>
 
-        {% for non_member in non_members %} 
-            {{non_member}}
+                                </div>
+                            <!-- Card -->
+                          
+                    </div>
+                    
+                    <div class="col">
+                         <!-- Card -->
+                         <div class="card">
+                                    
+                                <!-- Card content -->
+                                <div class="card-body">
+                                        <table class="table">
+                                                <thead>
+                                                  <tr>
+                                                    <th scope="col">  
+                                                        <h4 class="card-title">Non_Members</h4>                                                  
+                                                    </th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for non_member in non_members %}
+                                                        <tr>
+                                                            <td>
+                                                                <a href="{% url 'profile' pk=non_member.pk %}" style="text-decoration : none; color : #000; ">
+                                                                    <br>
+
+                                                                    {% if non_member.userprofile.image %}
+                                                                        <img src={{non_member.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                                                    {% endif %}
+                                                                    &nbsp&nbsp
+                                                                    {{non_member}}
+                                                                </a>                                                                     
+                                                            </td>
+                                                            <td>
+                                                                {% if request.user in team_members %}
+                                                                    {% if non_member in sent_invites %}
+                                                                        <button type="button" class="btn btn-default" disabled>Invite Already Sent</button>
+                                                                    {% else %}    
+                                                                    <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}">
+                                                                        <button type="button" class="btn btn-success">Send Invite</button>
+                                                                    </a>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}                                              
+                                                </tbody>
+                                              </table>
+                                    
+                                
+                                </div>
+
+                            </div>
+                        <!-- Card -->
+                    </div>
+                </div>
+            </div>
+
             
-                {% if non_member in sent_invites %}
-                    <button type="button" class="btn btn-default" disabled>Invite Already Sent</button>
-                {% else %}    
-                <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}"></a>
-                    <button type="button" class="btn btn-success">Send Invite</button>
-                </a>
+            <div class="container-fluid">
+                <br><br>
+                {% if request.user in team_members %}
+
+                <h1><b>Posts:</b></h1>
+                    {% for post in private_posts %}
+                        <br>
+                        {% if forloop.first %}<div class="row">{% endif %}
+                        <div class="col">
+                            <!-- Card -->
+                                <div class="card hoverable">    
+                                <!-- Card content -->
+                                    <div class="card-body">
+                                        <a href="{% url 'profile' pk=post.author.pk %}" style="text-decoration : none; color : #000; ">
+                                                <img src={{post.author.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                                {{ post.author }}
+                                        </a>          
+                                    </div>                     
+                                <!-- Card image -->
+                                    <div class="view overlay">
+                                        <img class="card-img-top" src={{post.image.url}} alt="Card image cap">
+                                            <!-- <img class="card-img-top" src={{post.image.url}} alt="Card image cap"> -->
+                                            <a href="{% url 'post_detail' pk=post.pk %}">
+                                                <div class="mask rgba-white-slight"></div>
+                                            </a>
+                                    </div>
+            
+                                    <!-- Card content -->
+                                    <div class="card-body">
+                                
+                                        <!-- Title -->
+                                        <h5 class="card-title" href= "{% url 'post_detail' pk=post.pk %}">{{ post.title }}</h5>
+                                        <hr>
+                                        <!-- Text -->
+                                        <a class="card-text" href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
+                                
+                                    </div>                
+                                </div>
+                                <br><br>
+                            <!-- Card -->
+                        </div>
+                        {% if forloop.counter|divisibleby:3 %}</div><div class="row">
+                        {% elif forloop.counter|divisibleby:2 and forloop.last %}<div class="col"></div></div>  
+                        {% elif forloop.counter|divisibleby:1 and forloop.last %}<div class="col"></div><div class="col"></div></div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                <br>
+                {% for post in public_posts %}
+                <br>
+                {% if forloop.first %}<div class="row">{% endif %}
+                <div class="col">
+                    <!-- Card -->
+                        <div class="card hoverable">    
+                        <!-- Card content -->
+                            <div class="card-body">
+                                <a href="{% url 'profile' pk=post.author.pk %}" style="text-decoration : none; color : #000; ">
+                                        <img src={{post.author.userprofile.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35">
+                                        {{ post.author }}
+                                </a>          
+                            </div>                     
+                        <!-- Card image -->
+                            <div class="view overlay">
+                                <img class="card-img-top" src={{post.image.url}} alt="Card image cap">
+                                    <!-- <img class="card-img-top" src={{post.image.url}} alt="Card image cap"> -->
+                                    <a href="{% url 'post_detail' pk=post.pk %}">
+                                        <div class="mask rgba-white-slight"></div>
+                                    </a>
+                            </div>
+    
+                            <!-- Card content -->
+                            <div class="card-body">
+                        
+                                <!-- Title -->
+                                <h5 class="card-title" href= "{% url 'post_detail' pk=post.pk %}">{{ post.title }}</h5>
+                                <hr>
+                                <!-- Text -->
+                                <a class="card-text" href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approved_comments.count }}</a>
+                        
+                            </div>                
+                        </div>
+                        <br><br>
+                    <!-- Card -->
+                </div>
+                {% if forloop.counter|divisibleby:3 %}</div><div class="row">
+                {% elif forloop.counter|divisibleby:2 and forloop.last %}<div class="col"></div></div>  
+                {% elif forloop.counter|divisibleby:1 and forloop.last %}<div class="col"></div><div class="col"></div></div>
                 {% endif %}
+            {% endfor %}
+                    
+                {% endif %}
+                </div>
+
+
             
-            <br>
-        {% endfor %}
-        {% if request.user in team_members %}
-            {% for private_post in private_posts %}
-                <div class="post">
-                        <img src={{private_post.image.url}}/>
-                    <div class="date">
-                        <p>published: {{ private_post.published_date }}</p>
-                    </div>
-                    <h1><a href="{% url 'post_detail' pk=private_post.pk %}">{{ private_post.title }}</a></h1>
-                    <p>{{ private_post.text|linebreaksbr }}</p>
-                    <a href="{% url 'post_detail' pk=private_post.pk %}">Comments: {{ private_post.approved_comments.count }}</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            {% for public_post in public_posts %}
-                <div class="post">
-                        <img src={{public_post.image.url}}/>
-                    <div class="date">
-                        <p>published: {{ public_post.published_date }}</p>
-                    </div>
-                    <h1><a href="{% url 'post_detail' pk=public_post.pk %}">{{ public_post.title }}</a></h1>
-                    <p>{{ public_post.text|linebreaksbr }}</p>
-                    <a href="{% url 'post_detail' pk=public_post.pk %}">Comments: {{ public_post.approved_comments.count }}</a>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+                
+                    <!-- <h1 class="title">{{ team.name }}</h1>
+                    created by: {{team.creator}}
+                    <br>
+                    <br>
+                    members:
+                    <br>
+                    
+                    <br>
+                    <br>
+                    non_members:
+                    <br>
+                    {% for non_member in non_members %} 
+                        {{non_member}}
+                        
+                            {% if non_member in sent_invites %}
+                                <button type="button" class="btn btn-default" disabled>Invite Already Sent</button>
+                            {% else %}    
+                            <a href="{% url 'invite_send' user=non_member.pk team=team.pk%}">
+                                <button type="button" class="btn btn-success">Send Invite</button>
+                            </a>
+                            {% endif %}
+                        
+                        <br>
+                    {% endfor %}
+                    {% if request.user in team_members %}
+                        {% for private_post in private_posts %}
+                            <div class="post">
+                                    <img src={{private_post.image.url}}/>
+                                <div class="date">
+                                    <p>published: {{ private_post.published_date }}</p>
+                                </div>
+                                <h1><a href="{% url 'post_detail' pk=private_post.pk %}">{{ private_post.title }}</a></h1>
+                                <p>{{ private_post.text|linebreaksbr }}</p>
+                                <a href="{% url 'post_detail' pk=private_post.pk %}">Comments: {{ private_post.approved_comments.count }}</a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for public_post in public_posts %}
+                            <div class="post">
+                                    <img src={{public_post.image.url}}/>
+                                <div class="date">
+                                    <p>published: {{ public_post.published_date }}</p>
+                                </div>
+                                <h1><a href="{% url 'post_detail' pk=public_post.pk %}">{{ public_post.title }}</a></h1>
+                                <p>{{ public_post.text|linebreaksbr }}</p>
+                                <a href="{% url 'post_detail' pk=public_post.pk %}">Comments: {{ public_post.approved_comments.count }}</a>
+                            </div>
+                        {% endfor %}
+                    {% endif %} -->
+            </div>
+            <div class="tab-pane fade" id="created_teams" role="tabpanel" aria-labelledby="created_teams-tab">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Creator</th>
+                            <th scope="col">Members</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in created_teams %}
+                                <tr>
+                                    <td><b><a href="{% url 'team_detail' pk=team.pk %}">{{team.name}}</a></b></td>
+                                    <td>
+                                        <a href="{% url 'profile' pk=team.creator.pk %}" style="text-decoration : none; color : #000; ">
+                                            {{team.creator}}
+                                        </a>
+                                    </td>
+                                    <td>{{team.members.count}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>          
+            </div>
+            <div class="tab-pane fade" id="create_team" role="tabpanel" aria-labelledby="create_team-tab">
+                <!-- <h1>Create Team:</h1>
+                <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success">Create</button>
+                </form> -->
+                        <!--Modal: Contact form-->
+                        <div class="modal-dialog cascading-modal" role="document">
+                        
+                            <!--Content-->
+                            <div class="modal-content">
+                        
+                                <!--Header-->
+                                <div class="modal-header white-text" style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">
+                                    <h4 class="title">
+                                        <!-- <i class="fa fa-pencil-alt"></i> --> 
+                                        New Post Form
+                                    </h4>
+                                        <!-- <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close"> -->
+                                        <!-- <span aria-hidden="true">×</span> -->
+                                    </button>
+                                </div>
+                                <!--Body-->
+                                <div class="modal-body">
+                                    <form method="POST" action="/teams/{{team.pk}}/post" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+
+                                        <label for="defaultFormNameModalEx">Title</label>
+                                        {{form.title}}
+                                        <br>
+
+                                        <label for="defaultFormNameModalEx">Text</label>
+                                        {{form.text}}
+                                        <br>
+
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                                            </div>
+                                            <div class="custom-file">
+                                                <!-- <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"> -->
+                                                {{form.image}}
+                                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                            </div>
+                                        </div>
+                            
+                                        <!-- Default input email -->
+                                        <!-- <label for="defaultFormEmailModalEx">Your email</label>
+                                        <input type="password" id="defaultFormEmailModalEx" class="form-control form-control-sm">
+                            
+                                        <br> -->
+                            
+                                        <!-- Default input subject -->
+                                        <!-- <label for="defaultFormSubjectModalEx">Subject</label>
+                                        <input type="text" id="defaultFormSubjectModalEx" class="form-control form-control-sm">
+                            
+                                        <br> -->
+                            
+                                        <!-- Default textarea message -->
+                                        <!-- <label for="defaultFormMessageModalEx">Your message</label>
+                                        <textarea type="text" id="defaultFormMessageModalEx" class="md-textarea form-control"></textarea> -->
+                            
+                                        <div class="text-center mt-4 mb-2">
+                                            <button class="btn btn-warning white-text"  style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">Send
+                                            </button>
+                                        </div>
+                                    </form>                        
+                                </div>
+                            </div>
+                            <!--/.Content-->
+                        </div>
+                        <!--/Modal: Contact form-->
+            </div>
+        </div>
 {% endblock %}

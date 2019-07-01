@@ -1,9 +1,69 @@
 {% extends 'MDB/base.html' %}
 
 {% block content %}
-    <h2>New post</h2>
-    <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Save</button>
-    </form>
+    <!--Modal: Contact form-->
+    <div class="modal-dialog cascading-modal" role="document">
+                        
+            <!--Content-->
+            <div class="modal-content">
+        
+                <!--Header-->
+                <div class="modal-header white-text" style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">
+                    <h4 class="title">
+                        <!-- <i class="fa fa-pencil-alt"></i> --> 
+                        New Post Form
+                    </h4>
+                        <!-- <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close"> -->
+                        <!-- <span aria-hidden="true">×</span> -->
+                    </button>
+                </div>
+                <!--Body-->
+                <div class="modal-body">
+                    <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+
+                        <label for="defaultFormNameModalEx">Title</label>
+                        {{form.title}}
+                        <br>
+
+                        <label for="defaultFormNameModalEx">Text</label>
+                        {{form.text}}
+                        <br>
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                            </div>
+                            <div class="custom-file">
+                                <!-- <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"> -->
+                                {{form.image}}
+                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                            </div>
+                        </div>
+            
+                        <!-- Default input email -->
+                        <!-- <label for="defaultFormEmailModalEx">Your email</label>
+                        <input type="password" id="defaultFormEmailModalEx" class="form-control form-control-sm">
+            
+                        <br> -->
+            
+                        <!-- Default input subject -->
+                        <!-- <label for="defaultFormSubjectModalEx">Subject</label>
+                        <input type="text" id="defaultFormSubjectModalEx" class="form-control form-control-sm">
+            
+                        <br> -->
+            
+                        <!-- Default textarea message -->
+                        <!-- <label for="defaultFormMessageModalEx">Your message</label>
+                        <textarea type="text" id="defaultFormMessageModalEx" class="md-textarea form-control"></textarea> -->
+            
+                        <div class="text-center mt-4 mb-2">
+                            <button class="btn btn-warning white-text"  style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">Send
+                            </button>
+                        </div>
+                    </form>                        
+                </div>
+            </div>
+            <!--/.Content-->
+        </div>
+        <!--/Modal: Contact form-->
 {% endblock %}

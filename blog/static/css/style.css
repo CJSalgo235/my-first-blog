@@ -1,5 +1,6 @@
 body {
-    background-image: linear-gradient(to right, #ff6700, #ff9800);
+    /* background-image: linear-gradient(to right, #ff6700, #ff9800); */
+    background-image: linear-gradient(to right, #e65c00, #F9D423);
     margin-top: 150px !important;
 }
 .register-left {

@@ -1,25 +1,68 @@
 {% extends 'MDB/base.html' %}
 
 {% block content %}
-    <h1>Invites:</h1>
-    <div class="post">
-            {% for invite in invites %}
-                {% if invite.user == user%}
-                    {% if invite.accepted_invite is False and invite.declined_invite is False%}
-                        {{invite}}
-                        {% if not invite.accepted_invite is True %}
-                        <a href="{% url 'invite_accept' pk=invite.pk team=invite.invited_to.pk user=invite.user.id %}">
-                            <button type="button" class="btn btn-success">Accept</button>
-                        </a>
-                        {% endif %}
-                        {% if not invite.declined_invite is True %}
-                        <a href="{% url 'invite_decline' pk=invite.pk%}">
-                            <button type="button" class="btn btn-danger">Decline</button>
-                        </a>
-                        {% endif %}
-                        <br>
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                aria-selected="true">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" style="color: hsl(0, 0%, 13%);" id="all_teams-tab" data-toggle="tab" href="#all_teams" role="tab" aria-controls="all_teams"
+            aria-selected="true">Received Invites</a>
+        </li>
+    </ul> 
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="all_teams" role="tabpanel" aria-labelledby="all_teams-tab">
+            <div class="post">
+                    <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                        Notification
+                                    </th>
+                                    <th scope="col">
+                                        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invite in invites %}
+                                    {% if invite.user == user%}
+                                        {% if invite.accepted_invite is False and invite.declined_invite is False%}
+                                            {% if not invite.accepted_invite is True %}
+                                                <tr>
+                                                    <td><br>
+                                                        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                    
+                                                        <a href="{% url 'profile' pk=invite.invited_by.pk %}" style="text-decoration : none; color : #000; ">
+                                                                <b> {{ invite.invited_by }} </b> invited you to
+                                                        </a>          
+                                                        <a href="{% url 'team_detail' pk=invite.invited_to.pk %}">
+                                                            <b>{{ invite.invited_to }}</b>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                            {% if not invite.accepted_invite is True %}
+                                                            <a href="{% url 'invite_accept' pk=invite.pk team=invite.invited_to.pk user=invite.user.id %}">
+                                                                <button type="button" class="btn btn-success">Accept</button>
+                                                            </a>
+                                                            {% endif %}
+                                                            {% if not invite.declined_invite is True %}
+                                                            <a href="{% url 'invite_decline' pk=invite.pk%}">
+                                                                <button type="button" class="btn btn-danger">Decline</button>
+                                                            </a>
+                                                            {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}   
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>               
+            </div> 
+        </div>
     </div>
 {% endblock %}

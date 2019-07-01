@@ -56,7 +56,8 @@ post_save.connect(create_profile, sender=User)
 class Team(models.Model):
     name = models.CharField(max_length=50, default='')
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator')
-    members = models.ManyToManyField(User, related_name='members')
+    members = models.ManyToManyField(User, related_name='members', blank=True, null=True)
+    image = models.ImageField(upload_to='team_images', blank=True, null=True)
     #sent_applications = models.ManyToManyField(User, blank=True, related_name='sent_applications')
 
     def __str__(self):

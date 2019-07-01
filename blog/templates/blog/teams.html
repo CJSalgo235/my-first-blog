@@ -1,45 +1,220 @@
 {% extends 'MDB/base.html' %}
 
 {% block content %}
-    <a href="{% url 'create_team' %}" class="top-menu">Create Team</a>
-    <h1>All Teams:</h1>
-    <div class="post">
-            {% for team in all_teams %}
-                <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
-                <br>
-            {% endfor %}
-    </div>
-    <h1>Created Teams:</h1>
-    <div class="post">
-            {% for team in created_teams %}
-                <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
-                <br>
-            {% endfor %}
-    </div>
-    <h1>Joined Teams:</h1>
-    <div class="post">
-            {% for team in joined_teams %}
-                <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
-                <br>
-            {% endfor %}
-    </div>
-    <h1>Other Teams:</h1>
-    <div class="post">
-        {% for team in other_teams %}
-                {% if not team in joined_teams%}
-                    {% if not team in sent_applications%}
-                        <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
-                        <form method="POST" class="post-form" action="{% url 'application_join' pk=team.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success">Join</button>
-                        </form>
-                        <br>
-                    {% else %}
-                        <h1><a href="{% url 'team_detail' pk=team.pk %}">{{team}}</a></h1>
-                        <button type="submit" class="btn btn-default" disabled>Application Already Sent</button>
-                        <br>
-                    {% endif %}
-                {% endif %}
-        {% endfor %}
-    </div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                    aria-selected="true">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" style="color: hsl(0, 0%, 13%);" id="all_teams-tab" data-toggle="tab" href="#all_teams" role="tab" aria-controls="all_teams"
+                aria-selected="true">All Teams</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: hsl(0, 0%, 13%);" id="created_teams-tab" data-toggle="tab" href="#created_teams" role="tab" aria-controls="created_teams"
+                aria-selected="false">Created Teams</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: hsl(0, 0%, 13%);" id="joined_teams-tab" data-toggle="tab" href="#joined_teams" role="tab" aria-controls="joined_teams"
+                aria-selected="false">Joined Teams</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: hsl(0, 0%, 13%);" id="other_teams-tab" data-toggle="tab" href="#other_teams" role="tab" aria-controls="other_teams"
+                aria-selected="false">Other Teams</a>
+            </li>
+            <li class="nav-item">
+                <!-- <a href="{% url 'create_team' %}" class="nav-link" style="color:darkorange;">Create Team</a> -->
+                <a class="nav-link" style="color: darkorange;" id="create_teams-tab" data-toggle="tab" href="#create_team" role="tab" aria-controls="create_team"
+                aria-selected="false">Create Team</a>
+            </li>
+          </ul> 
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="all_teams" role="tabpanel" aria-labelledby="all_teams-tab">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Creator</th>
+                        <th scope="col">Members</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in all_teams %}
+                            <tr>
+                                <td>
+                                    <b>
+                                        <a href="{% url 'team_detail' pk=team.pk %}">
+                                            <img src={{team.image.url}} class="rounded-circle z-depth-0" alt="avatar image" height="35" width="35">
+                                            &nbsp&nbsp&nbsp{{team.name}}
+                                        </a>
+                                    </b>
+                                </td>
+                                <td>
+                                    <a href="{% url 'profile' pk=team.creator.pk %}" style="text-decoration : none; color : #000; ">
+                                        {{team.creator}}
+                                    </a>
+                                </td>
+                                <td>{{team.members.count}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>               
+                </div>
+            <div class="tab-pane fade" id="created_teams" role="tabpanel" aria-labelledby="created_teams-tab">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Creator</th>
+                            <th scope="col">Members</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in created_teams %}
+                                <tr>
+                                    <td><b><a href="{% url 'team_detail' pk=team.pk %}">{{team.name}}</a></b></td>
+                                    <td>
+                                        <a href="{% url 'profile' pk=team.creator.pk %}" style="text-decoration : none; color : #000; ">
+                                            {{team.creator}}
+                                        </a>
+                                    </td>
+                                    <td>{{team.members.count}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>          
+            </div>
+            <div class="tab-pane fade" id="joined_teams" role="tabpanel" aria-labelledby="joined_teams-tab">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Creator</th>
+                            <th scope="col">Members</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in joined_teams %}
+                                <tr>
+                                    <td><b><a href="{% url 'team_detail' pk=team.pk %}">{{team.name}}</a></b></td>
+                                    <td>
+                                        <a href="{% url 'profile' pk=team.creator.pk %}" style="text-decoration : none; color : #000; ">
+                                            {{team.creator}}
+                                        </a>
+                                    </td>
+                                    <td>{{team.members.count}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>          
+            </div>
+            <div class="tab-pane fade" id="other_teams" role="tabpanel" aria-labelledby="other_teams-tab">
+                <table class="table">
+                        <thead>
+                            <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Creator</th>
+                            <th scope="col">Members</th>
+                            <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for team in other_teams %}
+                                    {% if not team in joined_teams and team.creator != user%}
+                                        <td><b><a href="{% url 'team_detail' pk=team.pk %}">{{team.name}}</a></b></td>
+                                        <td>
+                                            <a href="{% url 'profile' pk=team.creator.pk %}" style="text-decoration : none; color : #000; ">
+                                                {{team.creator}}
+                                            </a>
+                                        </td>
+                                        <td>{{team.members.count}}</td>
+                                        <td>
+                                            {% if not team in sent_applications%}
+                                                <form method="POST" class="post-form" action="{% url 'application_join' pk=team.pk %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success">Join</button>
+                                                </form>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-default" disabled>Application Already Sent</button>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}                               
+                            </tr>
+                        </tbody>
+                    </table>          
+            </div>
+            <div class="tab-pane fade" id="create_team" role="tabpanel" aria-labelledby="create_team-tab">
+                <!-- <h1>Create Team:</h1>
+                <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success">Create</button>
+                </form> -->
+                        <!--Modal: Contact form-->
+                        <div class="modal-dialog cascading-modal" role="document">
+                        
+                            <!--Content-->
+                            <div class="modal-content">
+                        
+                                <!--Header-->
+                                <div class="modal-header white-text" style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">
+                                    <h4 class="title">
+                                        <!-- <i class="fa fa-pencil-alt"></i> --> 
+                                        Create Team Form
+                                    </h4>
+                                        <!-- <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close"> -->
+                                        <!-- <span aria-hidden="true">×</span> -->
+                                    </button>
+                                </div>
+                                <!--Body-->
+                                <div class="modal-body">
+                                    <form method="POST" action="/teams/create" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+                                        <!-- Default input name -->
+                                        <label for="defaultFormNameModalEx">Team Name</label>
+                                        
+                                        <!-- <input type="text" id="defaultFormNameModalEx" class="form-control form-control-sm"> -->
+                                        {{form.name}}
+                                        
+                                        <br>
+
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                                            </div>
+                                            <div class="custom-file">
+                                                <!-- <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"> -->
+                                                {{form.image}}
+                                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                            </div>
+                                        </div>
+                            
+                                        <!-- Default input email -->
+                                        <!-- <label for="defaultFormEmailModalEx">Your email</label>
+                                        <input type="password" id="defaultFormEmailModalEx" class="form-control form-control-sm">
+                            
+                                        <br> -->
+                            
+                                        <!-- Default input subject -->
+                                        <!-- <label for="defaultFormSubjectModalEx">Subject</label>
+                                        <input type="text" id="defaultFormSubjectModalEx" class="form-control form-control-sm">
+                            
+                                        <br> -->
+                            
+                                        <!-- Default textarea message -->
+                                        <!-- <label for="defaultFormMessageModalEx">Your message</label>
+                                        <textarea type="text" id="defaultFormMessageModalEx" class="md-textarea form-control"></textarea> -->
+                            
+                                        <div class="text-center mt-4 mb-2">
+                                            <button class="btn btn-warning white-text"  style=" background-image: linear-gradient(to right, #FF8008, #FFC837);">Send
+                                            </button>
+                                        </div>
+                                    </form>                        
+                                </div>
+                            </div>
+                            <!--/.Content-->
+                        </div>
+                        <!--/Modal: Contact form-->
+            </div>
+        </div>
 {% endblock %}
